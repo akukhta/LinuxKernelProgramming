@@ -1,0 +1,1 @@
+cmd_/home/alex/LinuxKernelProgramming/ScullDevice/ScullDevice.mod := { echo  /home/alex/LinuxKernelProgramming/ScullDevice/scull.o;  echo; } > /home/alex/LinuxKernelProgramming/ScullDevice/ScullDevice.mod

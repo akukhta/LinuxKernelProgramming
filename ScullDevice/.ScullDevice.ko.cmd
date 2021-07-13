@@ -1,0 +1,1 @@
+cmd_/home/alex/LinuxKernelProgramming/ScullDevice/ScullDevice.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000  --build-id=sha1  -T ./scripts/module-common.lds -o /home/alex/LinuxKernelProgramming/ScullDevice/ScullDevice.ko /home/alex/LinuxKernelProgramming/ScullDevice/ScullDevice.o /home/alex/LinuxKernelProgramming/ScullDevice/ScullDevice.mod.o;  true
