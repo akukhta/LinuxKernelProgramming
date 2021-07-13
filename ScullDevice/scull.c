@@ -59,7 +59,7 @@ static int __init scullInit(void)
 	else
 	{
 		char const className1[] = "SCULLDEVIL";
-		devClass = class_create(THIS_MODULE, className1);
+		devClass = class_create(THIS_MODULE, "SCULLDEVIL");
 		printk(KERN_INFO "Major number: %i\n", (int) MAJOR(classMajor));
 		
 		if (devClass == NULL)
@@ -69,7 +69,7 @@ static int __init scullInit(void)
 			return 1;
 		}
 
-		devDevice = device_create(devClass, NULL, classMajor, NULL, className);
+		devDevice = device_create(devClass, NULL, classMajor, NULL, "SCULL");
 		printk(KERN_INFO "HERE2222\n");
 		if (devDevice = NULL)
 		{
@@ -98,7 +98,7 @@ static void __exit scullCleanup(void)
 	printk(KERN_ALERT "HERE2\n");
 	class_destroy(devClass);
 	printk(KERN_ALERT "HETR3\n");
-	unregister_chrdev_region(MAJOR(classMajor), className);
+	unregister_chrdev_region(classMajor, deviceCount);
 	printk(KERN_INFO "Scull device has been unloaded\n");
 }
 
