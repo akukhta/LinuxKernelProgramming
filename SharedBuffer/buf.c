@@ -116,21 +116,22 @@ static int __init SharedBufferInit(void)
 		printk(KERN_ERR "Failed to allocate memory\n");
 	}
 	
-		size_t i = 0;
-		for (; i < deviceCount; i++)
-		{
-			cdev_init(&buffers[i].dev, &SharedBufferFOPS);
-			buffers[i].dev.owner = THIS_MODULE;
-			buffers[i].dev.ops = &SharedBufferFOPS;
-			buffers[i].deviceID = i + 1;
-			dev_t number = MKDEV(MAJOR(majorNumber), i);
+	size_t i = 0;
+	
+	for (; i < deviceCount; i++)
+	{
+		cdev_init(&buffers[i].dev, &SharedBufferFOPS);
+		buffers[i].dev.owner = THIS_MODULE;
+		buffers[i].dev.ops = &SharedBufferFOPS;
+		buffers[i].deviceID = i + 1;
+		dev_t number = MKDEV(MAJOR(majorNumber), i);
 			
-			if (cdev_add(&buffers[i].dev, number, 1))
-			{
-				printk(KERN_ERR "Can`t add cdev\n");
-				return 4;
-			}		
-		}
+		if (cdev_add(&buffers[i].dev, number, 1))
+		{
+			printk(KERN_ERR "Can`t add cdev\n");
+			return 4;
+		}		
+	}
 	
 	printk(KERN_INFO "Shared buffer\\s has\\ve been inited\n");
 	return 0;

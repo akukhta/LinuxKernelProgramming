@@ -1,1 +1,0 @@
-cmd_/home/alex/LinuxKernelProgramming/KobjectsTest/modules.order := {   echo /home/alex/LinuxKernelProgramming/KobjectsTest/KObjectTest.ko; :; } | awk '!x[$$0]++' - > /home/alex/LinuxKernelProgramming/KobjectsTest/modules.order
