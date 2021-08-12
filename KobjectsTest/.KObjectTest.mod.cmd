@@ -1,0 +1,1 @@
+cmd_/home/alex/LinuxKernelProgramming/KobjectsTest/KObjectTest.mod := { echo  /home/alex/LinuxKernelProgramming/KobjectsTest/source.o;  echo; } > /home/alex/LinuxKernelProgramming/KobjectsTest/KObjectTest.mod

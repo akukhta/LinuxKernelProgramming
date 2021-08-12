@@ -1,0 +1,1 @@
+cmd_/home/alex/LinuxKernelProgramming/KobjectsTest/KObjectTest.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000  --build-id=sha1  -T ./scripts/module-common.lds -o /home/alex/LinuxKernelProgramming/KobjectsTest/KObjectTest.ko /home/alex/LinuxKernelProgramming/KobjectsTest/KObjectTest.o /home/alex/LinuxKernelProgramming/KobjectsTest/KObjectTest.mod.o;  true

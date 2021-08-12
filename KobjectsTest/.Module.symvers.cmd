@@ -1,0 +1,1 @@
+cmd_/home/alex/LinuxKernelProgramming/KobjectsTest/Module.symvers := sed 's/ko$$/o/' /home/alex/LinuxKernelProgramming/KobjectsTest/modules.order | scripts/mod/modpost -m -a   -o /home/alex/LinuxKernelProgramming/KobjectsTest/Module.symvers -e -i Module.symvers   -T -

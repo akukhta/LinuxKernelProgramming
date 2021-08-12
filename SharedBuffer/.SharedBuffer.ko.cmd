@@ -1,0 +1,1 @@
+cmd_/home/alex/LinuxKernelProgramming/SharedBuffer/SharedBuffer.ko := ld -r -m elf_x86_64  --build-id=sha1  -T scripts/module.lds -o /home/alex/LinuxKernelProgramming/SharedBuffer/SharedBuffer.ko /home/alex/LinuxKernelProgramming/SharedBuffer/SharedBuffer.o /home/alex/LinuxKernelProgramming/SharedBuffer/SharedBuffer.mod.o;  true

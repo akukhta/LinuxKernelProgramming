@@ -1,0 +1,4 @@
+make -C /lib/modules/5.8.0-63-generic/build M=/home/alex/LinuxKernelProgramming/SharedBuffer modules
+make[1]: Entering directory '/usr/src/linux-headers-5.8.0-63-generic'
+  CC [M]  /home/alex/LinuxKernelProgramming/SharedBuffer/LinkedBuffer.o
+make[1]: Leaving directory '/usr/src/linux-headers-5.8.0-63-generic'
