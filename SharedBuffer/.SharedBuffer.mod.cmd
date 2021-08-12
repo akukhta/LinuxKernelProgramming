@@ -1,1 +1,0 @@
-cmd_/home/alex/LinuxKernelProgramming/SharedBuffer/SharedBuffer.mod := { echo  /home/alex/LinuxKernelProgramming/SharedBuffer/buf.o /home/alex/LinuxKernelProgramming/SharedBuffer/LinkedBuffer.o;  echo; } > /home/alex/LinuxKernelProgramming/SharedBuffer/SharedBuffer.mod

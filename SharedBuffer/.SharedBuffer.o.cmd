@@ -1,1 +1,0 @@
-cmd_/home/alex/LinuxKernelProgramming/SharedBuffer/SharedBuffer.o := ld -m elf_x86_64    -r -o /home/alex/LinuxKernelProgramming/SharedBuffer/SharedBuffer.o /home/alex/LinuxKernelProgramming/SharedBuffer/buf.o /home/alex/LinuxKernelProgramming/SharedBuffer/LinkedBuffer.o
