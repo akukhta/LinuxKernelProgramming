@@ -2,16 +2,20 @@
 
 struct BufferList* createElement(char const * data, size_t size)
 {
-	struct BufferList *buf = (struct BufferList*) kmalloc(sizeof(struct BufferList), GFP_USER);
-	buf->buf = (char*) kmalloc(size, GFP_USER);
+	printk(KERN_INFO "Creating the element\n");
+	struct BufferList *buf = (struct BufferList*) kmalloc(sizeof(struct BufferList), GFP_KERNEL);
+	buf->buf = (char*) kmalloc(size, GFP_KERNEL);
 	memcpy(buf->buf, data, size);
 	buf->size = size;
+	buf->prev = NULL;
+	buf->next = NULL;
+	printk(KERN_INFO "The element has been created\n");
 	return buf;
 }
 
 struct BufferList *createSubBuffer(size_t size, struct BufferList *prev, struct BufferList *next)
 {
-	struct BufferList *buf = (struct BufferList*) kmalloc(sizeof(struct BufferList), GFP_USER);
+	struct BufferList *buf = (struct BufferList*) kmalloc(sizeof(struct BufferList), GFP_KERNEL);
 	
 	if (buf == NULL)
 	{
@@ -58,5 +62,26 @@ int add_begin(struct BufferList *begin, char const * data, size_t size)
 	buf->next = begin;
 	begin->prev = buf;
 	begin = buf;
+	return 0;
+}
+
+int remove(struct BufferList *item)
+{
+	if (item == NULL)
+	{
+		return 0;
+	}
+	
+	printk(KERN_INFO "Removing the element\n");
+	
+	if (item->next != NULL)
+	{
+		item->next->prev = NULL;
+	}
+	
+	kfree(item->buf);
+	kfree(item);
+	item = NULL;
+	printk(KERN_INFO "The element has been removed\n");
 	return 0;
 }

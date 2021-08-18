@@ -14,12 +14,13 @@ struct BufferList
 //Creates queue
 struct BufferList* createSubBuffer(size_t size, struct BufferList *prev, struct BufferList *next);
 //Add data to end
-int add_back(struct BufferList *back, char *data, size_t size);
+int add_back(struct BufferList *back, char const * data, size_t size);
 //Add data to begin
 int add_begin(struct BufferList *begin, char const * data, size_t size);
 //Insert
 int insert(struct BufferList* prev,  char const * data, size_t size);
-//Find i element of queue
+//Remove iterator
+int remove(struct BufferList *item);
 
 
 //TODO Next:
@@ -27,8 +28,7 @@ int insert(struct BufferList* prev,  char const * data, size_t size);
 struct BufferList* find(struct BufferList *head, size_t i);
 //Remove i element of queue
 int remove(struct BufferList *head, size_t i); 
-//Remove iterator
-int remove(struct BufferList *item);
+
 */
 
 //Helping function to allocate element

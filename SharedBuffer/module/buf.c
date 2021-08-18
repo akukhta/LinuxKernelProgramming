@@ -15,7 +15,7 @@ struct Shared_Buffer
 {	
 	size_t totalSize;
 	size_t deviceID;
-	struct BufferList *head;
+	struct BufferList *head, *tail;
 	struct cdev dev;
 	struct rwsemaphore *sem;
 };
@@ -34,25 +34,74 @@ static int sharedBufferOpen(struct inode *nod, struct file *fp)
 {
 	struct Shared_Buffer *buf = container_of(nod->i_cdev, struct Shared_Buffer, dev);
 	fp->private_data = buf;
-	printk(KERN_INFO "Device has been opened\n");
+	printk(KERN_INFO "Device %i has been opened\n", buf->deviceID);
 	return 0;
 }
 
 static ssize_t sharedBufferRead(struct file *fp, char __user *buf, size_t size, loff_t *off)
-{
-	printk(KERN_INFO "Reading from Shared Buffer %i\n", ((struct Shared_Buffer*)fp->private_data)->deviceID);
-	return 1;
+{	
+	struct Shared_Buffer *buffer = (struct Shared_Buffer*) fp->private_data;
+	
+	struct BufferList *iterator = buffer->head;
+	size_t bytesReaded = 0;
+	
+	if (iterator != NULL && iterator->size != 0 && buffer->totalSize != 0)
+	{
+		while (bytesReaded < size || iterator == NULL)
+		{
+			bytesReaded += iterator->size - copy_to_user(buf + bytesReaded, iterator->buf, iterator->size);
+			
+			if (iterator->next == NULL)
+			{
+				remove(iterator);
+				buffer->head = NULL;	
+				break;
+			}
+			else
+			{
+				struct BufferList *itemToDelete = iterator;
+				iterator = iterator->next;
+				remove(itemToDelete);
+				buffer->head = iterator;
+			}
+		}
+		
+		buffer->totalSize -= bytesReaded;
+		return bytesReaded;
+	}
+	
+	else
+	{
+		return 0;
+	}
+	
 } 
 
 static ssize_t sharedBufferWrite(struct file *fp, char const __user *buffer, size_t size, loff_t *off)
 {
-	printk(KERN_INFO "Writing to Shared Buffer\n");
-	return 1;
+	struct Shared_Buffer *bufferEl = (struct Shared_Buffer*) fp->private_data;
+	char *tmpBuf = (char*) kmalloc(size, GFP_KERNEL);
+	int bytesCopied = size - copy_from_user(tmpBuf, buffer, size);
+	struct BufferList *element = createElement(tmpBuf, bytesCopied); 
+	
+	if (bufferEl->head == NULL)
+	{
+		bufferEl->head = element;
+		bufferEl->tail = element;
+	}
+	else
+	{
+		element->prev = bufferEl->tail;
+		bufferEl->tail->next = element;
+		bufferEl->tail = element;
+	}
+	
+	bufferEl->totalSize += bytesCopied;
+	return bytesCopied;
 }
 
 static int sharedBufferRelease(struct inode *nod, struct file *fp)
 {
-	printk(KERN_INFO "Device has been released\n");
 	return 0;
 }
 
@@ -83,23 +132,15 @@ static int __init SharedBufferInit(void)
 		return 2;
 	}
 	
-	
-	if (deviceCount == 1)
-	{
-		devices = device_create(deviceClass, NULL, majorNumber, NULL, "SharedBuffer");
-	}
-	
-	else
-	{
-		devices = (struct device*) kmalloc(sizeof(struct device) * deviceCount, GFP_USER);
+	devices = (struct device*) kmalloc(sizeof(struct device) * deviceCount, GFP_KERNEL);
 		
-		int i = 0;
-		for (; i < deviceCount; i++)
-		{
-			dev_t number = MKDEV(MAJOR(majorNumber), i);
-			devices[i] = *(device_create(deviceClass, NULL, number, NULL, "SharedBuffer%i", i + 1));
-		}
+	int i = 0;
+	for (; i < deviceCount; i++)
+	{
+		dev_t number = MKDEV(MAJOR(majorNumber), i);
+		devices[i] = *(device_create(deviceClass, NULL, number, NULL, "SharedBuffer%i", i + 1));
 	}
+	
 	
 	if (devices == NULL)
 	{
@@ -109,14 +150,14 @@ static int __init SharedBufferInit(void)
 		return 3;
 	}
 	
-	buffers = (struct Shared_Buffer*) kmalloc(sizeof(struct Shared_Buffer) * deviceCount, GFP_USER);	
+	buffers = (struct Shared_Buffer*) kmalloc(sizeof(struct Shared_Buffer) * deviceCount, GFP_KERNEL);	
 	
 	if (buffers == NULL)
 	{
 		printk(KERN_ERR "Failed to allocate memory\n");
 	}
 	
-	size_t i = 0;
+	i = 0;
 	
 	for (; i < deviceCount; i++)
 	{
@@ -124,6 +165,8 @@ static int __init SharedBufferInit(void)
 		buffers[i].dev.owner = THIS_MODULE;
 		buffers[i].dev.ops = &SharedBufferFOPS;
 		buffers[i].deviceID = i + 1;
+		buffers[i].head = NULL;
+		buffers[i].tail = NULL;
 		dev_t number = MKDEV(MAJOR(majorNumber), i);
 			
 		if (cdev_add(&buffers[i].dev, number, 1))
@@ -148,24 +191,17 @@ static void __exit SharedBufferExit(void)
 	
 	printk(KERN_INFO "Here1\n");
 	
+	
+	
 	if (deviceClass != NULL)
 	{
-		if (deviceCount == 1)
+		i = 0;
+		for (; i < deviceCount; i++)
 		{
-			device_destroy(deviceClass, majorNumber);
-			printk(KERN_INFO "Here2\n");
+			dev_t number = MKDEV(MAJOR(majorNumber), i);
+			device_destroy(deviceClass, number);
 		}
-		else
-		{
-			i = 0;
-			for (; i < deviceCount; i++)
-			{
-				dev_t number = MKDEV(MAJOR(majorNumber), i);
-				device_destroy(deviceClass, number);
-			}
 			
-			printk(KERN_INFO "Here2\n");
-		}
 		
 		class_destroy(deviceClass);
 		printk(KERN_INFO "Here3\n");
@@ -179,9 +215,3 @@ static void __exit SharedBufferExit(void)
 
 module_init(SharedBufferInit);
 module_exit(SharedBufferExit);
-
-
-
-
-
-
