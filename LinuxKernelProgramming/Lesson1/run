@@ -1,7 +1,0 @@
-#!/bin/bash
-
-sudo insmod ./my_module.ko
-sudo lsmod | grep my_module
-sudo rmmod my_module
-sudo dmesg | tail -n2
-sudo lsmod | grep my_module
