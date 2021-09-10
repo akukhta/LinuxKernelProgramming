@@ -42,7 +42,6 @@ static int sharedBufferOpen(struct inode *nod, struct file *fp)
 	return 0;
 }
 
-<<<<<<< HEAD:SharedBuffer/module/buf.c
 static long int sharedBufferIOCTL(struct file *fp, unsigned int cmd, long unsigned int arg)
 {
 	printk(KERN_INFO "IOCTL call\n");
@@ -77,45 +76,6 @@ static ssize_t sharedBufferRead(struct file *fp, char __user *buf, size_t size, 
 	
 	remove(iterator);
 	return bytesReaded;
-=======
-static ssize_t sharedBufferRead(struct file *fp, char __user *buf, size_t size, loff_t *off)
-{	
-	struct Shared_Buffer *buffer = (struct Shared_Buffer*) fp->private_data;
-	
-	struct BufferList *iterator = buffer->head;
-	size_t bytesReaded = 0;
-	
-	if (iterator != NULL && iterator->size != 0 && buffer->totalSize != 0)
-	{
-		while (bytesReaded < size || iterator == NULL)
-		{
-			bytesReaded += iterator->size - copy_to_user(buf + bytesReaded, iterator->buf, iterator->size);
-			
-			if (iterator->next == NULL)
-			{
-				remove(iterator);
-				buffer->head = NULL;	
-				break;
-			}
-			else
-			{
-				struct BufferList *itemToDelete = iterator;
-				iterator = iterator->next;
-				remove(itemToDelete);
-				buffer->head = iterator;
-			}
-		}
-		
-		buffer->totalSize -= bytesReaded;
-		return bytesReaded;
-	}
-	
-	else
-	{
-		return 0;
-	}
-	
->>>>>>> 6f4aedec76e91e8885b1848e182a73c22a1d0547:SharedBuffer/buf.c
 } 
 
 static ssize_t sharedBufferWrite(struct file *fp, char const __user *buffer, size_t size, loff_t *off)
