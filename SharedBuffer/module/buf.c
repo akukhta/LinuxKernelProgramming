@@ -18,8 +18,10 @@ struct Shared_Buffer
 	size_t deviceID;
 	struct BufferList *head, *tail;
 	struct cdev dev;
-	struct rwsemaphore *sem;
+	struct rw_semaphore sem;
 };
+
+static const char *semName = "sem";
 
 static dev_t majorNumber;
 static int deviceCount = 1;
@@ -63,6 +65,8 @@ static ssize_t sharedBufferRead(struct file *fp, char __user *buf, size_t size, 
 	printk(KERN_INFO "Read call\n");
 	struct Shared_Buffer *buffer = (struct Shared_Buffer*) fp->private_data;
 	
+	down_read(&buffer->sem);
+	
 	struct BufferList *iterator = buffer->head;
 	
 	if (iterator == NULL || size != iterator->size)
@@ -73,8 +77,10 @@ static ssize_t sharedBufferRead(struct file *fp, char __user *buf, size_t size, 
 	size_t bytesReaded = iterator->size - copy_to_user(buf, iterator->buf, iterator->size);
 	
 	buffer->head = iterator->next;
-	
 	remove(iterator);
+	
+	up_read(&buffer->sem);
+	
 	return bytesReaded;
 } 
 
@@ -85,6 +91,8 @@ static ssize_t sharedBufferWrite(struct file *fp, char const __user *buffer, siz
 	int bytesCopied = size - copy_from_user(tmpBuf, buffer, size);
 	struct BufferList *element = createElement(tmpBuf, bytesCopied); 
 	
+	down_write(&bufferEl->sem);
+
 	if (bufferEl->head == NULL)
 	{
 		bufferEl->head = element;
@@ -98,6 +106,9 @@ static ssize_t sharedBufferWrite(struct file *fp, char const __user *buffer, siz
 	}
 	
 	bufferEl->totalSize += bytesCopied;
+	
+	up_write(&bufferEl->sem);
+	
 	return bytesCopied;
 }
 
@@ -167,6 +178,7 @@ static int __init SharedBufferInit(void)
 		buffers[i].dev.owner = THIS_MODULE;
 		buffers[i].dev.ops = &SharedBufferFOPS;
 		buffers[i].deviceID = i + 1;
+		init_rwsem(&buffers[i].sem);
 		buffers[i].head = NULL;
 		buffers[i].tail = NULL;
 		dev_t number = MKDEV(MAJOR(majorNumber), i);
