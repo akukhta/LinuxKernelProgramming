@@ -32,8 +32,6 @@ SharedBuffer::SharedBuffer(size_t number, Mode m)
 	
 	fd = open(name.data(), flag);
 	
-	std::cout << "Here " << fd << std::endl; 
-	
 	if (fd < 0)
 	{
 		throw std::runtime_error("Can`t open the Shared Buffer Driver!");

@@ -15,10 +15,13 @@ int main(int argc, char **argv)
 	size_t number = std::stoi(argv[1]);
 	try
 	{
-		SharedBuffer buf(number, Mode::WRITE);
-		std::string test = argc == 3 ? argv[2] : "Message for testing";
-		std::vector<unsigned char> b(test.begin(), test.end());
-		buf.Write(b);
+		while(1)
+		{
+			SharedBuffer buf(number, Mode::WRITE);
+			std::string test = argc == 3 ? argv[2] : "Hell";
+			std::vector<unsigned char> b(test.begin(), test.end());
+			buf.Write(b);
+		}
 	}
 	catch (std::runtime_error const &err)
 	{

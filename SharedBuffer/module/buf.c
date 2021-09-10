@@ -6,6 +6,7 @@
 #include <linux/kdev_t.h>
 #include <linux/rwsem.h>
 #include <linux/ioctl.h>
+#include <linux/wait.h>
 #include "LinkedBuffer.h"
 
 
@@ -19,6 +20,8 @@ struct Shared_Buffer
 	struct BufferList *head, *tail;
 	struct cdev dev;
 	struct rw_semaphore sem;
+	wait_queue_head_t wQueue; 
+	bool isAvailable;
 };
 
 static const char *semName = "sem";
@@ -46,17 +49,17 @@ static int sharedBufferOpen(struct inode *nod, struct file *fp)
 
 static long int sharedBufferIOCTL(struct file *fp, unsigned int cmd, long unsigned int arg)
 {
-	printk(KERN_INFO "IOCTL call\n");
-	
 	if (cmd != SHARED_BUFFER_GET_SIZE)
 	{
 		return -ENOTTY;
-	}	
-	
-	printk(KERN_INFO "IOCTL has been called with succsess\n");
-	
-	struct Shared_Buffer *buf = (struct Shared_Buffer*) fp->private_data;
-	
+	}
+
+	struct Shared_Buffer *buf = (struct Shared_Buffer *) fp->private_data;
+
+	down_read(&buf->sem);
+	wait_event_interruptible(buf->wQueue, buf->isAvailable);
+	up_read(&buf->sem);
+
 	return copy_to_user((void __user *) arg, &buf->head->size, sizeof(size_t)) > 0 ? -EFAULT : 0; 
 }
 
@@ -66,7 +69,8 @@ static ssize_t sharedBufferRead(struct file *fp, char __user *buf, size_t size, 
 	struct Shared_Buffer *buffer = (struct Shared_Buffer*) fp->private_data;
 	
 	down_read(&buffer->sem);
-	
+	wait_event_interruptible(buffer->wQueue, buffer->isAvailable == true);
+
 	struct BufferList *iterator = buffer->head;
 	
 	if (iterator == NULL || size != iterator->size)
@@ -92,7 +96,9 @@ static ssize_t sharedBufferWrite(struct file *fp, char const __user *buffer, siz
 	struct BufferList *element = createElement(tmpBuf, bytesCopied); 
 	
 	down_write(&bufferEl->sem);
-
+	bufferEl->isAvailable = false;
+	up_write(&bufferEl->sem);
+	
 	if (bufferEl->head == NULL)
 	{
 		bufferEl->head = element;
@@ -106,9 +112,9 @@ static ssize_t sharedBufferWrite(struct file *fp, char const __user *buffer, siz
 	}
 	
 	bufferEl->totalSize += bytesCopied;
-	
-	up_write(&bufferEl->sem);
-	
+
+	bufferEl->isAvailable = true;
+	wake_up_interruptible(&bufferEl->wQueue);
 	return bytesCopied;
 }
 
@@ -179,6 +185,8 @@ static int __init SharedBufferInit(void)
 		buffers[i].dev.ops = &SharedBufferFOPS;
 		buffers[i].deviceID = i + 1;
 		init_rwsem(&buffers[i].sem);
+		init_waitqueue_head(&buffers[i].wQueue);
+		buffers[i].isAvailable = true;
 		buffers[i].head = NULL;
 		buffers[i].tail = NULL;
 		dev_t number = MKDEV(MAJOR(majorNumber), i);
