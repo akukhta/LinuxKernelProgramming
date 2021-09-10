@@ -5,6 +5,7 @@
 #include <linux/device.h>
 #include <linux/kdev_t.h>
 #include <linux/rwsem.h>
+#include <linux/ioctl.h>
 #include "LinkedBuffer.h"
 
 
@@ -27,6 +28,9 @@ static struct class *deviceClass;
 static struct device *devices;
 static struct Shared_Buffer *buffers;
 
+#define SHARED_BUFFER_IOCTL 0x0f0f0f0f
+#define SHARED_BUFFER_GET_SIZE _IOR(SHARED_BUFFER_IOCTL, 0, size_t)
+
 module_param(deviceCount, int, S_IRUGO | S_IWUSR);
 
 
@@ -38,43 +42,40 @@ static int sharedBufferOpen(struct inode *nod, struct file *fp)
 	return 0;
 }
 
+static long int sharedBufferIOCTL(struct file *fp, unsigned int cmd, long unsigned int arg)
+{
+	printk(KERN_INFO "IOCTL call\n");
+	
+	if (cmd != SHARED_BUFFER_GET_SIZE)
+	{
+		return -ENOTTY;
+	}	
+	
+	printk(KERN_INFO "IOCTL has been called with succsess\n");
+	
+	struct Shared_Buffer *buf = (struct Shared_Buffer*) fp->private_data;
+	
+	return copy_to_user((void __user *) arg, &buf->head->size, sizeof(size_t)) > 0 ? -EFAULT : 0; 
+}
+
 static ssize_t sharedBufferRead(struct file *fp, char __user *buf, size_t size, loff_t *off)
 {	
+	printk(KERN_INFO "Read call\n");
 	struct Shared_Buffer *buffer = (struct Shared_Buffer*) fp->private_data;
 	
 	struct BufferList *iterator = buffer->head;
-	size_t bytesReaded = 0;
 	
-	if (iterator != NULL && iterator->size != 0 && buffer->totalSize != 0)
-	{
-		while (bytesReaded < size || iterator == NULL)
-		{
-			bytesReaded += iterator->size - copy_to_user(buf + bytesReaded, iterator->buf, iterator->size);
-			
-			if (iterator->next == NULL)
-			{
-				remove(iterator);
-				buffer->head = NULL;	
-				break;
-			}
-			else
-			{
-				struct BufferList *itemToDelete = iterator;
-				iterator = iterator->next;
-				remove(itemToDelete);
-				buffer->head = iterator;
-			}
-		}
-		
-		buffer->totalSize -= bytesReaded;
-		return bytesReaded;
-	}
-	
-	else
+	if (iterator == NULL || size != iterator->size)
 	{
 		return 0;
 	}
 	
+	size_t bytesReaded = iterator->size - copy_to_user(buf, iterator->buf, iterator->size);
+	
+	buffer->head = iterator->next;
+	
+	remove(iterator);
+	return bytesReaded;
 } 
 
 static ssize_t sharedBufferWrite(struct file *fp, char const __user *buffer, size_t size, loff_t *off)
@@ -113,6 +114,7 @@ static struct file_operations SharedBufferFOPS =
 	.read = sharedBufferRead,
 	.write = sharedBufferWrite,
 	.release = sharedBufferRelease, 	
+	.unlocked_ioctl = sharedBufferIOCTL,
 };
 
 static int __init SharedBufferInit(void)
@@ -177,6 +179,8 @@ static int __init SharedBufferInit(void)
 	}
 	
 	printk(KERN_INFO "Shared buffer\\s has\\ve been inited\n");
+	printk(KERN_INFO "GET_SIZE IOCTL number: %xi\n",
+		SHARED_BUFFER_GET_SIZE);
 	return 0;
 }
 
