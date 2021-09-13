@@ -18,9 +18,8 @@ Implemented sys calls:
 1. Read
 2. Write
 3. IOCTL (works as network module - it returns size of the current subbuffer to read)
-4. fsync - to read ALL blocks to one buffer (In progress)
-5. poll - to wait when read or write operation can be done (in progress)
-6. mmap - to use buffer as continuous memory area (in progress)
+4. poll - to wait when read or write operation can be done (in progress)
+5. mmap - to use buffer as continuous memory area (in progress)
 
 Write operation is blocking operation and can put read procosses into sleep 
 
