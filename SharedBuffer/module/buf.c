@@ -7,6 +7,7 @@
 #include <linux/rwsem.h>
 #include <linux/ioctl.h>
 #include <linux/wait.h>
+#include <linux/poll.h>
 #include "LinkedBuffer.h"
 
 
@@ -45,6 +46,19 @@ static int sharedBufferOpen(struct inode *nod, struct file *fp)
 	fp->private_data = buf;
 	printk(KERN_INFO "Device %i has been opened\n", buf->deviceID);
 	return 0;
+}
+
+static unsigned int sharedBufferPoll(struct file *filep, poll_table *wait)
+{
+	unsigned int mask = 0;
+	
+	struct Shared_Buffer *buf = (struct Shared_Buffer *) filep->private_data;
+	poll_wait(filep, &buf->wQueue, wait);
+	
+	mask |= POLLIN | POLLRDNORM | POLLWRNORM | POLLOUT;
+	
+	return mask;
+	
 }
 
 static long int sharedBufferIOCTL(struct file *fp, unsigned int cmd, long unsigned int arg)
