@@ -25,7 +25,11 @@ jobs:
         cd ${{ env.APP_PATH }}
         sudo ls
         sudo insmod SharedBuffer.ko deviceCount=1
-      
+    
+    - name: Install boost test framework
+      run: |
+        sudo apt-get install libboost-test-dev
+    
     - name: Testing
       run: |
         cd ${{ env.TEST_PATH }}
