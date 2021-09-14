@@ -8,8 +8,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Configuring
-      run: cd SharedBuffer/module
+    #- name: Configuring
+    #  run: cd SharedBuffer/module
     - name: Print content of directory
       run: ls
     
