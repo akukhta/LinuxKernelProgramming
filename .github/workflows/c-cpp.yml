@@ -2,13 +2,14 @@ name: C/C++ CI
 
 on: [push]
 
+env: 
+    APP_PATH: "SharedBuffer/module"
+    TEST_PATH: "SharedBuffer/tests"
+
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    env: 
-      APP_PATH: "SharedBuffer/module"
-      TEST_PATH: "SharedBuffer/tests"
       
     steps:
     
@@ -38,6 +39,7 @@ jobs:
     - name: Testing
       run: |
         cd ${{ env.TEST_PATH }}
+        ls
         make
         sudo ./test
     
