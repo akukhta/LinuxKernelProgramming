@@ -30,6 +30,11 @@ jobs:
       run: |
         sudo apt-get install libboost-test-dev
     
+  testing:
+    runs-on: ubuntu-latest
+    
+    steps:
+    
     - name: Testing
       run: |
         cd ${{ env.TEST_PATH }}
