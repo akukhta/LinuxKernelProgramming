@@ -8,8 +8,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    #- name: Configuring
-    #  run: cd SharedBuffer/module
-    - name: Print content of directory
-      run: ls
+    - name: Downloading the repository
+      uses: actions/checkout@v1
+      
+    - name: Test
+      run: |
+        ls
+      
+    
     
