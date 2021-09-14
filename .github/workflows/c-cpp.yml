@@ -14,6 +14,16 @@ jobs:
     - name: Test
       run: |
         ls
+        
+    - name: Build module
+      run: |
+        cd SharedBuffer/module
+        make
+        
+    - name: Inserting the module and test it
+      run: |
+        sudo insmod SharedBuffer.ko
+        lsmod | grep SharedBuffer.ko
       
     
     
