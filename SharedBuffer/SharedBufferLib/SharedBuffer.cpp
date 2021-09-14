@@ -46,7 +46,7 @@ size_t SharedBuffer::Write(std::vector<unsigned char>  const & buf)
 std::vector<unsigned char> SharedBuffer::Read()
 {
 	size_t *sizeOfBuf = new size_t;
-	if (ioctl(fd, get_size_cmd, 
+	if (ioctl(fd, SHARED_BUFFER_GET_SIZE_OF_CURR_HEAD, 
 		reinterpret_cast<unsigned long>(sizeOfBuf)) < 0)
 	{
 		throw std::runtime_error("No data");

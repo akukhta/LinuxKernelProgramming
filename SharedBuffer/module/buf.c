@@ -5,11 +5,10 @@
 #include <linux/device.h>
 #include <linux/kdev_t.h>
 #include <linux/rwsem.h>
-#include <linux/ioctl.h>
 #include <linux/wait.h>
 #include <linux/poll.h>
 #include "LinkedBuffer.h"
-
+#include "bufioctl.h"
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Alexey Kukhta");
@@ -23,6 +22,7 @@ struct Shared_Buffer
 	struct rw_semaphore sem;
 	wait_queue_head_t wQueue; 
 	bool isAvailable;
+	size_t elementsCount;
 };
 
 static const char *semName = "sem";
@@ -35,7 +35,11 @@ static struct device *devices;
 static struct Shared_Buffer *buffers;
 
 #define SHARED_BUFFER_IOCTL 0x0f0f0f0f
-#define SHARED_BUFFER_GET_SIZE _IOR(SHARED_BUFFER_IOCTL, 0, size_t)
+#define SHARED_BUFFER_GET_SIZE_OF_CURR_HEAD _IOR(SHARED_BUFFER_IOCTL, 0, size_t)
+#define SHARED_BUFFER_GET_COUNT_OF_ELEMENTS _IOR(SHARED_BUFFER_IOCTL, 1, size_t)
+#define SHARED_BUFFER_GET_TOTAL_SIZE _IOR(SHARED_BUFFER_IOCTL, 2, size_t);
+#define SHARED_BUFFER_SET_NEW_HEAD _IOW(SHARED_BUFFER_IOCTL, 3, size_t);
+#define SHARED_BUFFER_SET_STACK_MODE _IOW(SHARED_BUFFER_IOCTL, 4, bool);
 
 module_param(deviceCount, int, S_IRUGO | S_IWUSR);
 
@@ -63,7 +67,7 @@ static unsigned int sharedBufferPoll(struct file *filep, poll_table *wait)
 
 static long int sharedBufferIOCTL(struct file *fp, unsigned int cmd, long unsigned int arg)
 {
-	if (cmd != SHARED_BUFFER_GET_SIZE)
+	if (cmd != SHARED_BUFFER_GET_SIZE_OF_CURR_HEAD)
 	{
 		return -ENOTTY;
 	}
@@ -96,7 +100,7 @@ static ssize_t sharedBufferRead(struct file *fp, char __user *buf, size_t size, 
 	
 	buffer->head = iterator->next;
 	remove(iterator);
-	
+	buffer->elementsCount--;
 	up_read(&buffer->sem);
 	
 	return bytesReaded;
@@ -126,7 +130,7 @@ static ssize_t sharedBufferWrite(struct file *fp, char const __user *buffer, siz
 	}
 	
 	bufferEl->totalSize += bytesCopied;
-
+	bufferEl->elementsCount++;
 	bufferEl->isAvailable = true;
 	wake_up_interruptible(&bufferEl->wQueue);
 	return bytesCopied;
@@ -203,6 +207,7 @@ static int __init SharedBufferInit(void)
 		buffers[i].isAvailable = true;
 		buffers[i].head = NULL;
 		buffers[i].tail = NULL;
+		buffers[i].elementsCount = 0;
 		dev_t number = MKDEV(MAJOR(majorNumber), i);
 			
 		if (cdev_add(&buffers[i].dev, number, 1))
@@ -212,9 +217,6 @@ static int __init SharedBufferInit(void)
 		}		
 	}
 	
-	printk(KERN_INFO "Shared buffer\\s has\\ve been inited\n");
-	printk(KERN_INFO "GET_SIZE IOCTL number: %xi\n",
-		SHARED_BUFFER_GET_SIZE);
 	return 0;
 }
 

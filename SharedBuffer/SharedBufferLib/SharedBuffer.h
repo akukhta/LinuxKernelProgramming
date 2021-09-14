@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <memory>
 #include <iostream>
+#include "bufioctl.h"
 
 enum class Mode
 {
@@ -26,5 +27,4 @@ public:
 private:
 	int fd;
 	static std::string const fileName;
-	unsigned long const get_size_cmd = 0x8f0f0f00;
 };
