@@ -24,6 +24,7 @@ jobs:
     - name: Inserting the module and test it
       run: |
         cd ${{ env.APP_PATH }}
+        ls
         sudo insmod SharedBuffer.ko
         lsmod | grep SharedBuffer.ko
       
