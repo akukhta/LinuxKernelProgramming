@@ -9,5 +9,7 @@ jobs:
 
     steps:
     - name: Configuring
-      run: cd SharedBuffer/module ls
+      run: cd SharedBuffer/module
+    - name: Print content of directory
+      run: ls
     
