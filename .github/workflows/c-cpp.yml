@@ -6,7 +6,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    env: 
+      APP_PATH: "SharedBuffer/module"
     steps:
     - name: Downloading the repository
       uses: actions/checkout@v1
@@ -17,11 +18,12 @@ jobs:
         
     - name: Build module
       run: |
-        cd SharedBuffer/module
+        cd ${{ env.APP_PATH }}
         make
         
     - name: Inserting the module and test it
       run: |
+        cd ${{ env.APP_PATH }}
         sudo insmod SharedBuffer.ko
         lsmod | grep SharedBuffer.ko
       
