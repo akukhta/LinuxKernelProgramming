@@ -23,6 +23,7 @@ public:
 	~SharedBuffer();
 	std::vector<unsigned char> Read();
 	size_t Write(std::vector<unsigned char> const & buf);
+	operator int() { return fd; };
 
 private:
 	int fd;
