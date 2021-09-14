@@ -25,8 +25,8 @@ jobs:
       run: |
         cd ${{ env.APP_PATH }}
         sudo ls
-        sudo insmod ${{ env.APP_PATH }}/SharedBuffer.ko
-        lsmod | grep SharedBuffer.ko
+        sudo insmod SharedBuffer.ko deviceCount=1
+        sudo lsmod | grep SharedBuffer
       
     
     
