@@ -8,25 +8,28 @@ jobs:
     runs-on: ubuntu-latest
     env: 
       APP_PATH: "SharedBuffer/module"
+      TEST_PATH: "SharedBuffer/tests"
+      
     steps:
+    
     - name: Downloading the repository
       uses: actions/checkout@v1
-      
-    - name: Test
-      run: |
-        ls
         
     - name: Build module
       run: |
         cd ${{ env.APP_PATH }}
         make
         
-    - name: Inserting the module and test it
+    - name: Inserting the module
       run: |
         cd ${{ env.APP_PATH }}
         sudo ls
         sudo insmod SharedBuffer.ko deviceCount=1
-        sudo lsmod | grep SharedBuffer
       
+    - name: Testing
+      run: |
+        cd ${{ env.TEST_PATH }}
+        make
+        sudo ./test
     
     
