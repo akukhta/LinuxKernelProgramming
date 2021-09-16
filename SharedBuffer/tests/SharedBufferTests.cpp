@@ -19,77 +19,95 @@ std::vector<unsigned char> generate()
 	return result;
 }
 
+bool writingTest()
+{
+	SharedBuffer buf(1, Mode::READWRITE);
+	
+	auto before = generate();
+	
+	buf.Write(before);
+	
+	auto after = buf.Read();
+	
+	return before == after;
+}
+
+bool countOfElementsTest()
+{
+	SharedBuffer buf(1, Mode::READWRITE);
+	
+	size_t countOfElements = rand() % 50;
+	
+	for (size_t i = 0; i < countOfElements; i++)
+	{
+		auto buf = generate();
+		buf.Write(buf);
+	}
+	
+	size_t *countOfElementsFromKLM = new size_t;
+	
+	if (ioctl(buf, SHARED_BUFFER_GET_COUNT_OF_ELEMENTS, reinterpret_cast<unsigned long>(countOfElementsKLM)) < 0)
+		throw std::runtime_error("Error");
+		
+	return *countOfElementsFromKLM == countOfElements;
+}
+
 BOOST_AUTO_TEST_SUITE(SharedBufferWrittingTests)
 
 BOOST_AUTO_TEST_CASE(Writing1)
 {
-	SharedBuffer buf(1, Mode::READWRITE);
-	
-	auto before = generate();
-	
-	buf.Write(before);
-	
-	auto after = buf.Read();
-	
-	BOOST_REQUIRE_EQUAL(before == after, true);
-	
+	BOOST_REQUIRE_EQUAL(writtingTest(), true);	
 }
 
 BOOST_AUTO_TEST_CASE(Writing2)
 {
-	SharedBuffer buf(1, Mode::READWRITE);
-	
-	auto before = generate();
-	
-	buf.Write(before);
-	
-	auto after = buf.Read();
-	
-	BOOST_REQUIRE_EQUAL(before == after, true);
-	
+	BOOST_REQUIRE_EQUAL(writtingTest(), true);	
 }
 
 BOOST_AUTO_TEST_CASE(Writing3)
 {
-	SharedBuffer buf(1, Mode::READWRITE);
-	
-	auto before = generate();
-	
-	buf.Write(before);
-	
-	auto after = buf.Read();
-	
-	BOOST_REQUIRE_EQUAL(before == after, true);
-	
+	BOOST_REQUIRE_EQUAL(writtingTest(), true);	
 }
 
 BOOST_AUTO_TEST_CASE(Writing4)
 {
-	SharedBuffer buf(1, Mode::READWRITE);
-	
-	auto before = generate();
-	
-	buf.Write(before);
-	
-	auto after = buf.Read();
-	
-	BOOST_REQUIRE_EQUAL(before == after, true);
-	
+	BOOST_REQUIRE_EQUAL(writtingTest(), true);	
 }
 
 BOOST_AUTO_TEST_CASE(Writing5)
 {
-	SharedBuffer buf(1, Mode::READWRITE);
-	
-	auto before = generate();
-	
-	buf.Write(before);
-	
-	auto after = buf.Read();
-	
-	BOOST_REQUIRE_EQUAL(before == after, true);
-	
+	BOOST_REQUIRE_EQUAL(writtingTest(), true);	
 }
 
+BOOST_AUTO_TEST_SUITE_END()
+
+
+
+BOOST_AUTO_TEST_SUITE(IOCTLCountOfElementsTests)
+
+BOOST_AUTO_TEST_CASE(Count1)
+{
+	BOOST_REQUIRE_EQUAL(countOfElementsTest(), true);	
+}
+
+BOOST_AUTO_TEST_CASE(Count2)
+{
+	BOOST_REQUIRE_EQUAL(countOfElementsTest(), true);	
+}
+
+BOOST_AUTO_TEST_CASE(Count3)
+{
+	BOOST_REQUIRE_EQUAL(countOfElementsTest(), true);	
+}
+
+BOOST_AUTO_TEST_CASE(Count4)
+{
+	BOOST_REQUIRE_EQUAL(countOfElementsTest(), true);	
+}
+
+BOOST_AUTO_TEST_CASE(Count5)
+{
+	BOOST_REQUIRE_EQUAL(countOfElementsTest(), true);	
+}
 BOOST_AUTO_TEST_SUITE_END()
 
