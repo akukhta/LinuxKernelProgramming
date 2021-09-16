@@ -97,7 +97,7 @@ static long int sharedBufferIOCTL(struct file *fp, unsigned int cmd, long unsign
 		
 		default:
 			return -ENOTTY;
-	}
+	};
 	
 }
 
