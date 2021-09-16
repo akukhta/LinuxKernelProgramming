@@ -56,27 +56,27 @@ BOOST_AUTO_TEST_SUITE(SharedBufferWrittingTests)
 
 BOOST_AUTO_TEST_CASE(Writing1)
 {
-	BOOST_REQUIRE_EQUAL(writtingTest(), true);	
+	BOOST_REQUIRE_EQUAL(writingTest(), true);	
 }
 
 BOOST_AUTO_TEST_CASE(Writing2)
 {
-	BOOST_REQUIRE_EQUAL(writtingTest(), true);	
+	BOOST_REQUIRE_EQUAL(writingTest(), true);	
 }
 
 BOOST_AUTO_TEST_CASE(Writing3)
 {
-	BOOST_REQUIRE_EQUAL(writtingTest(), true);	
+	BOOST_REQUIRE_EQUAL(writingTest(), true);	
 }
 
 BOOST_AUTO_TEST_CASE(Writing4)
 {
-	BOOST_REQUIRE_EQUAL(writtingTest(), true);	
+	BOOST_REQUIRE_EQUAL(writingTest(), true);	
 }
 
 BOOST_AUTO_TEST_CASE(Writing5)
 {
-	BOOST_REQUIRE_EQUAL(writtingTest(), true);	
+	BOOST_REQUIRE_EQUAL(writingTest(), true);	
 }
 
 BOOST_AUTO_TEST_SUITE_END()
