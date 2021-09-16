@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "sharedbuffer.h": "c",
+        "stdio.h": "c"
+    }
+}
