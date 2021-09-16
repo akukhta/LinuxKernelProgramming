@@ -40,8 +40,8 @@ bool countOfElementsTest()
 	
 	for (size_t i = 0; i < countOfElements; i++)
 	{
-		auto buf = generate();
-		buf.Write(buf);
+		auto randomBuffer = generate();
+		buf.Write(randomBuffer);
 	}
 	
 	size_t *countOfElementsFromKLM = new size_t;
