@@ -99,6 +99,7 @@ static long int sharedBufferIOCTL(struct file *fp, unsigned int cmd, long unsign
 			return -ENOTTY;
 	};
 	
+	return -EAGAIN;
 }
 
 static ssize_t sharedBufferRead(struct file *fp, char __user *buf, size_t size, loff_t *off)
