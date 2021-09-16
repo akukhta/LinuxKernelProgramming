@@ -63,6 +63,10 @@ bool currentHeadSize()
 	
 	size_t *headSize = new size_t;
 	
+	SharedBuffer buf(1, Mode::READWRITE);
+	
+	buf.Write(head);
+	
 	if (ioctl(buf, SHARED_BUFFER_GET_SIZE_OF_CURR_HEAD, reinterpret_cast<unsigned long>(headSize)) < 0)
 		throw std::runtime_error("Error");
 		
