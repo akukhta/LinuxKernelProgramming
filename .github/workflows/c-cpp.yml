@@ -35,6 +35,6 @@ jobs:
       run: |
         cd ${{ env.TEST_PATH }}
         make
-        sudo ./test
+        sudo ./test --result_code=no --report_level=short
     
     
