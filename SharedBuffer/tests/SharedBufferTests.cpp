@@ -48,7 +48,12 @@ bool countOfElementsTest()
 	
 	if (ioctl(buf, SHARED_BUFFER_GET_COUNT_OF_ELEMENTS, reinterpret_cast<unsigned long>(countOfElementsFromKLM)) < 0)
 		throw std::runtime_error("Error");
-		
+	
+	for (size_t i = 0; i < countOfElements; i++)
+	{
+		buf.Read();
+	}
+	
 	return *countOfElementsFromKLM == countOfElements;
 }
 
