@@ -1,0 +1,31 @@
+name: C/C++ CI
+
+on: 
+    push:
+        branches: 
+            - Task5
+
+
+env: 
+    APP_PATH: "Task5"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+      
+    steps:
+    
+    - name: Downloading the repository
+      uses: actions/checkout@v1
+        
+    - name: Build module
+      run: |
+        cd ${{ env.APP_PATH }}
+        make
+        
+    - name: Inserting the module
+      run: |
+        cd ${{ env.APP_PATH }}
+        sudo ls
+        sudo insmod solution.ko
