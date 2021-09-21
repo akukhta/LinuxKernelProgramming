@@ -43,7 +43,7 @@ static struct file_operations devOPS =
 
 static const int major = 255, minor = 0;
 static dev_t devID;
-static const char *name = "sol";
+static const char *name = "solution_node";
 
 static int __init deviceInit(void)
 {
@@ -73,7 +73,7 @@ static int __init deviceInit(void)
 static void __exit deviceExit(void)
 {
 	cdev_del(&myDevice->c_dev);
-	unregister_chrdev_region(MKDEV(major, minor), 1);
+	unregister_chrdev_region(devID, 1);
 	return;
 }
 
