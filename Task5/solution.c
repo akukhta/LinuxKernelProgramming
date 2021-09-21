@@ -30,7 +30,9 @@ static ssize_t devWrite(struct file * n, char const __user * c, size_t size, lof
 
 static ssize_t devRead(struct file *fp, char __user *buf, size_t size, loff_t *off)
 {
-	return size;
+	char *tmpbuf = (char*) kmalloc(size, GFP_KERNEL);
+	sprintf(tmpbuf,"%i %i\n", myDevice->openCount, myDevice->totalDataWritten);
+	return size - copy_to_user(buf, tmpbuf, size);
 }
 
 static struct file_operations devOPS = 
