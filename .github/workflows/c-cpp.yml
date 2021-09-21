@@ -1,6 +1,10 @@
 name: C/C++ CI
 
-on: [push]
+on: 
+    push:
+        branches: 
+            - master
+
 
 env: 
     APP_PATH: "SharedBuffer/module"
@@ -36,5 +40,3 @@ jobs:
         cd ${{ env.TEST_PATH }}
         make
         sudo ./test --report_level=short
-    
-    
