@@ -11,6 +11,7 @@ MODULE_LICENSE("GPL");
 static struct _device
 {
 	size_t openCount, totalDataWritten;
+	bool isReaded;
 	struct cdev c_dev;
 	dev_t deviceNumber;
 };
@@ -20,8 +21,8 @@ static struct _device *myDevice;
 
 static int devOpen(struct inode * n, struct file * f)
 {
-	printk(KERN_INFO "kernel_mooc the device has been opened\n");
 	myDevice->openCount++;			
+	myDevice->isReaded = false;
 	return 0;
 }
 
@@ -33,11 +34,21 @@ static ssize_t devWrite(struct file * n, char const __user * c, size_t size, lof
 
 static ssize_t devRead(struct file *fp, char __user *buf, size_t size, loff_t *off)
 {
+	if (myDevice->isReaded)
+	{
+		return 0;
+	}
+
 	char *tmpbuf = (char*) kmalloc(size, GFP_KERNEL);
-	sprintf(tmpbuf,"%i %i\n", myDevice->openCount, myDevice->totalDataWritten);
-	printk(KERN_INFO "kernel_mooc String: %s", tmpbuf);
+
+	//unsafe 
+	sprintf(tmpbuf,"%zu %zu\n\0", myDevice->openCount, myDevice->totalDataWritten);
+
+	ssize_t bytesCopied =  strlen(tmpbuf) - copy_to_user(buf, tmpbuf, strlen(tmpbuf));
+	*off = bytesCopied;
+	myDevice->isReaded = true;
 	kfree(tmpbuf);
-	return size - copy_to_user(buf, tmpbuf, size);
+	return bytesCopied;
 }
 
 static struct file_operations devOPS = 
@@ -73,8 +84,7 @@ static int __init deviceInit(void)
 	{
 		return -2;
 	}	
-	printk(KERN_INFO "kernel_mooc ADDED %i,%i\n", MAJOR(myDevice->deviceNumber), 
-		MINOR(myDevice->deviceNumber));		
+		
 	return 0;
 }
 
