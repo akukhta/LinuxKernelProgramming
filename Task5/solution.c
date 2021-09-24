@@ -3,6 +3,8 @@
 #include <linux/cdev.h>
 #include <linux/fs.h>
 #include <linux/slab.h>
+#include <linux/uaccess.h>
+#include <linux/kernel.h>
 
 MODULE_LICENSE("GPL");
 
@@ -18,6 +20,7 @@ static struct _device *myDevice;
 
 static int devOpen(struct inode * n, struct file * f)
 {
+	printk(KERN_INFO "kernel_mooc the device has been opened\n");
 	myDevice->openCount++;			
 	return 0;
 }
@@ -32,6 +35,8 @@ static ssize_t devRead(struct file *fp, char __user *buf, size_t size, loff_t *o
 {
 	char *tmpbuf = (char*) kmalloc(size, GFP_KERNEL);
 	sprintf(tmpbuf,"%i %i\n", myDevice->openCount, myDevice->totalDataWritten);
+	printk(KERN_INFO "kernel_mooc String: %s", tmpbuf);
+	kfree(tmpbuf);
 	return size - copy_to_user(buf, tmpbuf, size);
 }
 
@@ -43,7 +48,7 @@ static struct file_operations devOPS =
 	.read = devRead,  		
 }; 
 
-static const int major = 255, minor = 0;
+static const int major = 240, minor = 0;
 static dev_t devID;
 static const char *name = "solution_node";
 
@@ -52,7 +57,7 @@ static int __init deviceInit(void)
 	myDevice = (struct _device *) kmalloc(sizeof(struct _device), GFP_KERNEL);
 	devID = MKDEV(major, minor);
 
-	if (register_chrdev_region(devID, 1, name) != 0)
+	if (register_chrdev_region(devID, 256, name) != 0)
 	{
 		return -1;
 	}
@@ -62,20 +67,21 @@ static int __init deviceInit(void)
 	myDevice->c_dev.ops = &devOPS;
 	myDevice->openCount = 0;
 	myDevice->totalDataWritten = 0;
-	myDevice->deviceNumber = MKDEV(major, minor + 1);
+	myDevice->deviceNumber = MKDEV(major, minor);
 
-	if (cdev_add(&myDevice->c_dev, myDevice->deviceNumber, 1))
+	if (cdev_add(&myDevice->c_dev, myDevice->deviceNumber, 256))
 	{
 		return -2;
 	}	
-		
+	printk(KERN_INFO "kernel_mooc ADDED %i,%i\n", MAJOR(myDevice->deviceNumber), 
+		MINOR(myDevice->deviceNumber));		
 	return 0;
 }
 
 static void __exit deviceExit(void)
 {
 	cdev_del(&myDevice->c_dev);
-	unregister_chrdev_region(devID, 1);
+	unregister_chrdev_region(devID, 256);
 	return;
 }
 
