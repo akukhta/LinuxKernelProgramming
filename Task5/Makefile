@@ -1,5 +1,5 @@
-obj-m := SharedBuffer.o
-SharedBuffer-objs := buf.o LinkedBuffer.o
+obj-m := solution.o
+#KBUILD_EXTRA_SYMBOLS := Module.symvers
 
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(shell pwd) modules
