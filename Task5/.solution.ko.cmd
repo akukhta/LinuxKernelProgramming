@@ -1,1 +1,0 @@
-cmd_/home/alex/LinuxKernelProgramming/Task5/solution.ko := ld -r -m elf_x86_64  --build-id=sha1  -T scripts/module.lds -o /home/alex/LinuxKernelProgramming/Task5/solution.ko /home/alex/LinuxKernelProgramming/Task5/solution.o /home/alex/LinuxKernelProgramming/Task5/solution.mod.o;  true
